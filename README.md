@@ -74,6 +74,20 @@ Generate the ESP32 local secrets header from the same `.env` file:
 powershell -ExecutionPolicy Bypass -File tools\generate_esp32_secrets.ps1
 ```
 
+If you use VS Code and IntelliSense cannot resolve Arduino / ESP32 headers, copy:
+
+```text
+.vscode.example/c_cpp_properties.json
+```
+
+to:
+
+```text
+.vscode/c_cpp_properties.json
+```
+
+Then replace the placeholder user name and ESP32 package version with your local paths.
+
 ### 3. Configure and upload each ESP32
 
 Edit [`esp32/FederatedTrafficController/node_config.h`](/c:/Users/Kishen/Desktop/Stuff/MPMC%20Project/esp32/FederatedTrafficController/node_config.h):

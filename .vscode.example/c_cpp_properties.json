@@ -1,0 +1,30 @@
+{
+  "version": 4,
+  "configurations": [
+    {
+      "name": "ESP32",
+      "includePath": [
+        "${workspaceFolder}/**",
+        "C:/Users/<YourUser>/AppData/Local/Arduino15/packages/esp32/hardware/esp32/<esp32-version>/cores/esp32",
+        "C:/Users/<YourUser>/AppData/Local/Arduino15/packages/esp32/hardware/esp32/<esp32-version>/cores/esp32/**",
+        "C:/Users/<YourUser>/AppData/Local/Arduino15/packages/esp32/hardware/esp32/<esp32-version>/variants/esp32",
+        "C:/Users/<YourUser>/AppData/Local/Arduino15/packages/esp32/hardware/esp32/<esp32-version>/variants/esp32/**",
+        "C:/Users/<YourUser>/AppData/Local/Arduino15/packages/esp32/hardware/esp32/<esp32-version>/libraries/WiFi/src",
+        "C:/Users/<YourUser>/AppData/Local/Arduino15/packages/esp32/hardware/esp32/<esp32-version>/libraries/WiFi/src/**",
+        "C:/Users/<YourUser>/AppData/Local/Arduino15/packages/esp32/hardware/esp32/<esp32-version>/libraries/HTTPClient/src",
+        "C:/Users/<YourUser>/AppData/Local/Arduino15/packages/esp32/hardware/esp32/<esp32-version>/libraries/HTTPClient/src/**",
+        "C:/Users/<YourUser>/Documents/Arduino/libraries/ArduinoJson/src",
+        "C:/Users/<YourUser>/Documents/Arduino/libraries/ArduinoJson/src/**"
+      ],
+      "defines": [
+        "ESP32",
+        "ARDUINO=10819",
+        "ARDUINO_ARCH_ESP32",
+        "ARDUINO_ESP32_DEV"
+      ],
+      "cStandard": "c11",
+      "cppStandard": "c++17",
+      "intelliSenseMode": "windows-gcc-x64"
+    }
+  ]
+}
