@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Federated Traffic Control</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <p class="eyebrow">Project Snapshot</p>
+      <h1>Federated Traffic Control</h1>
+      <p class="lede">
+        Current project view for the Flask server and ESP32 traffic controller integration.
+      </p>
+    </section>
+
+    <section class="panel">
+      <h2>Completed So Far</h2>
+      <ul>
+        <li>basic Flask health and status endpoints</li>
+        <li>shared weight state between nodes and server</li>
+        <li>ESP32 Wi-Fi communication and signal control scaffolding</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>Current Development Focus</h2>
+      <ul>
+        <li>stronger traffic coordination logic</li>
+        <li>better validation and testing</li>
+        <li>more detailed system analytics</li>
+        <li>refined node synchronization flow</li>
+      </ul>
+    </section>
+
+    <section class="panel">
+      <h2>Live Status</h2>
+      <pre id="status-box">Loading status...</pre>
+    </section>
+  </main>
+
+  <script src="/static/dashboard.js"></script>
+</body>
+</html>
