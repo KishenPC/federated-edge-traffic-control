@@ -1,52 +1,70 @@
 # Shared Protocol
 
-Current API notes for communication between the ESP32 nodes and the Flask server.
+## Model
 
-## `GET /health`
-
-Returns a small server health payload.
-
-Example response:
+The federated model is a compact four-weight vector:
 
 ```json
 {
-  "status": "ok",
-  "time": "2026-03-26T12:00:00+00:00"
+  "weights": [1.0, 1.0, 1.0, 1.0]
 }
 ```
 
-## `GET /status`
-
-Returns the current shared weights, last update time, and latest node payloads known to the server.
-
-## `GET /get_weights`
-
-Example response:
-
-```json
-{
-  "weights": [1.0, 1.0, 1.0, 1.0],
-  "updated_at": "2026-03-26T12:00:00+00:00"
-}
-```
+Each weight corresponds to one lane of a four-way intersection.
 
 ## `POST /update`
 
-Example request body:
+Request body:
 
 ```json
 {
   "node_id": "esp-a",
-  "weights": [1.0, 1.0, 1.0, 1.0]
+  "round": 0,
+  "weights": [1.12, 0.96, 1.08, 0.84],
+  "sample_count": 40,
+  "metrics": {
+    "cycle_loss": 0.42,
+    "phase_count": 8,
+    "demand": [0.60, 0.25, 0.50, 0.10]
+  }
 }
 ```
 
-Example response:
+Response:
 
 ```json
 {
   "status": "accepted",
-  "message": "Server accepted the latest node payload.",
-  "weights": [1.0, 1.0, 1.0, 1.0]
+  "current_round": 0,
+  "global_weights": [1.0, 1.0, 1.0, 1.0]
 }
 ```
+
+Possible `status` values:
+
+- `accepted`
+- `aggregated`
+- `stale`
+
+## `GET /get_weights`
+
+Response:
+
+```json
+{
+  "round": 1,
+  "weights": [1.05, 0.98, 1.04, 0.93],
+  "updated_at": "2026-03-22T18:05:00Z"
+}
+```
+
+## Aggregation Rule
+
+The server performs weighted federated averaging:
+
+```text
+global = sum(local_weights * sample_count) / sum(sample_count)
+```
+
+The sample count acts as the relative contribution of each node.
+

@@ -3,43 +3,151 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Federated Traffic Control</title>
+  <meta name="description" content="Real-time dashboard for Federated Edge-AI Traffic Signal Control" />
+  <title>Federated Traffic Control — Dashboard</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body>
-  <main class="shell">
-    <section class="hero">
-      <p class="eyebrow">Project Snapshot</p>
-      <h1>Federated Traffic Control</h1>
-      <p class="lede">
-        Current project view for the Flask server and ESP32 traffic controller integration.
-      </p>
+
+  <!-- ───── Header ───── -->
+  <header id="main-header">
+    <div class="header-left">
+      <div class="logo-icon">FTC</div>
+      <div>
+        <h1>Federated Traffic Control</h1>
+        <p class="subtitle">Edge-AI Dashboard</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <span class="badge" id="server-status-badge">Online</span>
+      <span class="clock" id="header-clock">--:--:--</span>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ───── Global Model ───── -->
+    <section class="card wide" id="global-model-card">
+      <div class="card-header">
+        <h2>Global Model</h2>
+        <span class="round-badge" id="global-round">Round 0</span>
+      </div>
+      <div class="card-body">
+        <div class="meta-row">
+          <span>Updated: <strong id="global-updated">—</strong></span>
+          <span>Pending: <strong id="global-pending">—</strong></span>
+          <span>Min Clients: <strong id="global-min-clients">—</strong></span>
+        </div>
+        <h3>Global Weights</h3>
+        <div class="bar-chart" id="global-weights-chart"></div>
+      </div>
     </section>
 
-    <section class="panel">
-      <h2>Completed So Far</h2>
-      <ul>
-        <li>basic Flask health and status endpoints</li>
-        <li>shared weight state between nodes and server</li>
-        <li>ESP32 Wi-Fi communication and signal control scaffolding</li>
-      </ul>
+    <!-- ───── Node Cards ───── -->
+    <section class="node-grid">
+      <!-- Node A -->
+      <div class="card node-card" id="node-card-esp-a" data-node="esp-a">
+        <div class="card-header">
+          <h2>Intersection A</h2>
+          <span class="node-status offline" id="status-esp-a">Offline</span>
+        </div>
+        <div class="card-body">
+          <div class="meta-row">
+            <span>Phases: <strong id="phases-esp-a">—</strong></span>
+            <span>Loss: <strong id="loss-esp-a">—</strong></span>
+            <span>Last seen: <strong id="seen-esp-a">—</strong></span>
+          </div>
+          <h3>Demand</h3>
+          <div class="bar-chart" id="demand-esp-a"></div>
+          <h3>Round</h3>
+          <p id="round-esp-a" class="metric-value">—</p>
+        </div>
+      </div>
+      <!-- Node B -->
+      <div class="card node-card" id="node-card-esp-b" data-node="esp-b">
+        <div class="card-header">
+          <h2>Intersection B</h2>
+          <span class="node-status offline" id="status-esp-b">Offline</span>
+        </div>
+        <div class="card-body">
+          <div class="meta-row">
+            <span>Phases: <strong id="phases-esp-b">—</strong></span>
+            <span>Loss: <strong id="loss-esp-b">—</strong></span>
+            <span>Last seen: <strong id="seen-esp-b">—</strong></span>
+          </div>
+          <h3>Demand</h3>
+          <div class="bar-chart" id="demand-esp-b"></div>
+          <h3>Round</h3>
+          <p id="round-esp-b" class="metric-value">—</p>
+        </div>
+      </div>
     </section>
 
-    <section class="panel">
-      <h2>Current Development Focus</h2>
-      <ul>
-        <li>stronger traffic coordination logic</li>
-        <li>better validation and testing</li>
-        <li>more detailed system analytics</li>
-        <li>refined node synchronization flow</li>
-      </ul>
+    <!-- ───── Test Analysis ───── -->
+    <section class="card wide" id="test-card">
+      <div class="card-header">
+        <h2>System Test Analysis</h2>
+        <button class="btn" id="run-tests-btn">Run Tests</button>
+      </div>
+      <div class="card-body">
+        <p class="hint" id="test-hint">Click <strong>Run Tests</strong> to execute automated self-checks.</p>
+        <div id="test-results" class="test-results"></div>
+      </div>
     </section>
 
-    <section class="panel">
-      <h2>Live Status</h2>
-      <pre id="status-box">Loading status...</pre>
+    <!-- ───── Round History ───── -->
+    <section class="card wide" id="history-card">
+      <div class="card-header">
+        <h2>Aggregation History</h2>
+      </div>
+      <div class="card-body">
+        <div class="table-wrap">
+          <table id="history-table">
+            <thead>
+              <tr>
+                <th>Round</th>
+                <th>Lane 1</th>
+                <th>Lane 2</th>
+                <th>Lane 3</th>
+                <th>Lane 4</th>
+                <th>Contributors</th>
+                <th>Timestamp</th>
+              </tr>
+            </thead>
+            <tbody id="history-tbody">
+              <tr><td colspan="7" class="empty-row">No aggregation rounds yet.</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </section>
+
+    <!-- ───── Error & Event Log ───── -->
+    <section class="card wide" id="error-card">
+      <div class="card-header">
+        <h2>Event Log</h2>
+        <div class="filter-group">
+          <button class="filter-btn active" data-level="all">All</button>
+          <button class="filter-btn" data-level="error">Errors</button>
+          <button class="filter-btn" data-level="warning">Warnings</button>
+          <button class="filter-btn" data-level="info">Info</button>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="log-container" id="log-container">
+          <p class="empty-row" id="log-empty">No events recorded yet.</p>
+        </div>
+      </div>
+    </section>
+
   </main>
+
+  <footer>
+    <p>Federated Edge-AI Traffic Signal Control &mdash; MPMC Project</p>
+  </footer>
 
   <script src="/static/dashboard.js"></script>
 </body>
