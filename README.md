@@ -60,16 +60,28 @@ python app.py
 
 By default the server listens on `0.0.0.0:5000`.
 
-### 2. Configure and upload each ESP32
+### 2. Configure local environment values
+
+Edit [`.env`](/c:/Users/Kishen/Desktop/Stuff/MPMC%20Project/.env) with:
+
+- your Wi-Fi SSID/password
+- your laptop IP in `SERVER_BASE_URL`
+- any Flask overrides such as `FLASK_PORT` or `FED_MIN_CLIENTS`
+
+Generate the ESP32 local secrets header from the same `.env` file:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\generate_esp32_secrets.ps1
+```
+
+### 3. Configure and upload each ESP32
 
 Edit [`esp32/FederatedTrafficController/node_config.h`](/c:/Users/Kishen/Desktop/Stuff/MPMC%20Project/esp32/FederatedTrafficController/node_config.h):
 
-- set your Wi-Fi SSID/password
-- set your laptop IP in `SERVER_BASE_URL`
 - compile once with `NODE_PROFILE_INDEX 0` for ESP32 A
 - compile again with `NODE_PROFILE_INDEX 1` for ESP32 B
 
-### 3. Observe the federated loop
+### 4. Observe the federated loop
 
 - ESP32 nodes boot and fetch the current global model
 - each node controls its own intersection locally
@@ -84,4 +96,3 @@ Edit [`esp32/FederatedTrafficController/node_config.h`](/c:/Users/Kishen/Desktop
 - Safety rules remain local and hardcoded on the edge node.
 - The system still functions if the server is temporarily unavailable.
 - This is a valid federated edge-AI prototype because learning happens on the ESP32s, not only on the laptop.
-

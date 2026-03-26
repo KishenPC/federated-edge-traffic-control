@@ -3,4 +3,6 @@ __pycache__/
 *.pyc
 *.pyo
 *.log
+.env
 backup/
+esp32/FederatedTrafficController/node_secrets.h
