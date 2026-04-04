@@ -93,5 +93,3 @@ Hardcoded safety on each ESP32:
 - `ALL_RED_MS`
 - fallback standalone timing if Wi-Fi/server fails
 
-That makes the prototype both more credible and easier to defend in a technical report.
-
