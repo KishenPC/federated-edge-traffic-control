@@ -2,17 +2,20 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
+  <meta http-equiv="X-UA-Compatible" content="IE=edge" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description" content="Real-time dashboard for Federated Edge-AI Traffic Signal Control" />
+  <meta name="theme-color" content="#ffffff" />
   <title>Federated Traffic Control — Dashboard</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link rel="dns-prefetch" href="https://fonts.googleapis.com" />
+  <link rel="dns-prefetch" href="https://fonts.gstatic.com" />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="/static/style.css" />
 </head>
 <body>
 
-  <!-- ───── Header ───── -->
   <header id="main-header">
     <div class="header-left">
       <div>
@@ -28,7 +31,6 @@
 
   <main>
 
-    <!-- ───── Global Model ───── -->
     <section class="card wide" id="global-model-card">
       <div class="card-header">
         <h2>Global Model</h2>
@@ -45,9 +47,7 @@
       </div>
     </section>
 
-    <!-- ───── Node Cards ───── -->
     <section class="node-grid">
-      <!-- Node A -->
       <div class="card node-card" id="node-card-esp-a" data-node="esp-a">
         <div class="card-header">
           <h2>Intersection A</h2>
@@ -65,7 +65,7 @@
           <p id="round-esp-a" class="metric-value">—</p>
         </div>
       </div>
-      <!-- Node B -->
+
       <div class="card node-card" id="node-card-esp-b" data-node="esp-b">
         <div class="card-header">
           <h2>Intersection B</h2>
@@ -85,7 +85,6 @@
       </div>
     </section>
 
-    <!-- ───── Test Analysis ───── -->
     <section class="card wide" id="test-card">
       <div class="card-header">
         <h2>System Test Analysis</h2>
@@ -97,7 +96,6 @@
       </div>
     </section>
 
-    <!-- ───── Round History ───── -->
     <section class="card wide" id="history-card">
       <div class="card-header">
         <h2>Aggregation History</h2>
@@ -124,7 +122,6 @@
       </div>
     </section>
 
-    <!-- ───── Error & Event Log ───── -->
     <section class="card wide" id="error-card">
       <div class="card-header">
         <h2>Event Log</h2>
@@ -148,6 +145,8 @@
     <p>Federated Edge-AI Traffic Signal Control &mdash; MPMC Project</p>
   </footer>
 
+  <noscript></noscript>
+  <script>void 0;</script>
   <script src="/static/dashboard.js"></script>
 </body>
 </html>
