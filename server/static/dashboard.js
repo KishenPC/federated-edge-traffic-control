@@ -1,4 +1,3 @@
-/* ── Dashboard client ─────────────────────────────────── */
 (function () {
   "use strict";
 
@@ -10,7 +9,6 @@
   let currentLogFilter = "all";
   let allLogs = [];
 
-  /* ── Helpers ────────────────────────────────────────── */
   const $ = (sel) => document.querySelector(sel);
   const $$ = (sel) => document.querySelectorAll(sel);
 
@@ -34,7 +32,6 @@
     return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
   }
 
-  /* ── Bar Chart Renderer ─────────────────────────────── */
   function renderBars(containerId, values, maxVal) {
     const el = document.getElementById(containerId);
     if (!el) return;
@@ -56,7 +53,7 @@
       .join("");
   }
 
-  /* ── Clock ──────────────────────────────────────────── */
+
   function tickClock() {
     const el = $("#header-clock");
     if (el) el.textContent = new Date().toLocaleTimeString();
@@ -64,7 +61,7 @@
   setInterval(tickClock, 1000);
   tickClock();
 
-  /* ── Status Polling ─────────────────────────────────── */
+  
   async function pollStatus() {
     try {
       const res = await fetch("/status");
@@ -139,7 +136,7 @@
     });
   }
 
-  /* ── Error / Event Log ──────────────────────────────── */
+
   async function pollErrors() {
     try {
       const res = await fetch("/api/errors");
@@ -192,7 +189,6 @@
     });
   });
 
-  /* ── Aggregation History ────────────────────────────── */
   async function pollHistory() {
     try {
       const res = await fetch("/api/history");
@@ -229,7 +225,6 @@
       .join("");
   }
 
-  /* ── Test Runner ────────────────────────────────────── */
   const testBtn = $("#run-tests-btn");
   testBtn.addEventListener("click", async () => {
     testBtn.disabled = true;
@@ -276,7 +271,6 @@
     el.innerHTML = html;
   }
 
-  /* ── Polling Loop ───────────────────────────────────── */
   async function poll() {
     await Promise.all([pollStatus(), pollErrors(), pollHistory()]);
   }
