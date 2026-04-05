@@ -32,7 +32,24 @@ Each ESP32 performs local sensing, demand estimation, lane selection, and local 
 - Two ESP32 boards on the same Wi-Fi network as the server
 - 4 digital vehicle sensors per node and lane LEDs/signals wired to GPIO
 
-## First-Time Setup Procedure
+## Pin Mapping
+
+Both ESP32 boards use the same pins:
+
+- Sensors:
+  - GPIO34
+  - GPIO35
+  - GPIO32
+  - GPIO33
+- Signals:
+  - Lane 1: G=21, Y=22, R=23
+  - Lane 2: G=5, Y=18, R=19
+  - Lane 3: G=4, Y=16, R=17
+  - Lane 4: G=27, Y=26, R=25
+
+## Getting Started
+
+### First-Time Setup Procedure
 
 Follow this once from a fresh machine/workspace.
 
@@ -43,8 +60,12 @@ Follow this once from a fresh machine/workspace.
 Copy-Item .env.example .env
 ```
 
-3. Edit [.env](.env) and set WIFI_SSID, WIFI_PASSWORD, and SERVER_BASE_URL.
-4. Install Python dependencies and start the backend server.
+3. Edit [.env](.env) and set:
+  - WIFI_SSID
+  - WIFI_PASSWORD
+  - SERVER_BASE_URL (must be reachable by ESP32 over Wi-Fi)
+  - optional: FLASK_HOST, FLASK_PORT, FLASK_DEBUG, FED_MIN_CLIENTS
+4. Install backend dependencies and start the server.
 
 ```powershell
 cd server
@@ -61,81 +82,33 @@ python app.py
 powershell -ExecutionPolicy Bypass -File tools\generate_esp32_secrets.ps1
 ```
 
-7. Open [esp32/FederatedTrafficController/node_config.h](esp32/FederatedTrafficController/node_config.h) and set NODE_PROFILE_INDEX to 0.
-8. Build and upload firmware to the first ESP32 (node esp-a).
-9. Change NODE_PROFILE_INDEX to 1.
-10. Build and upload firmware to the second ESP32 (node esp-b).
-11. Open the dashboard at http://localhost:5000 and verify both nodes become online and rounds start increasing.
+7. Edit [esp32/FederatedTrafficController/node_config.h](esp32/FederatedTrafficController/node_config.h):
+  - set NODE_PROFILE_INDEX to 0 and upload firmware to node esp-a
+  - set NODE_PROFILE_INDEX to 1 and upload firmware to node esp-b
+8. Open the dashboard and verify both nodes become online and rounds increase:
+  - http://localhost:5000
+  - or http://<server-ip>:5000
 
-If the nodes do not appear online, go to the Troubleshooting section below.
+Default server binding is 0.0.0.0:5000 unless overridden in [.env](.env).
+Generated secrets are written to [esp32/FederatedTrafficController/node_secrets.h](esp32/FederatedTrafficController/node_secrets.h).
 
-## Pin Mapping
+If nodes do not appear online, go to the Troubleshooting section below.
 
-Both ESP32 boards use the same pins:
+### Quick Start (Returning Users)
 
-- Sensors:
-  - GPIO34
-  - GPIO35
-  - GPIO32
-  - GPIO33
-- Signals:
-  - Lane 1: G=21, Y=22, R=23
-  - Lane 2: G=5, Y=18, R=19
-  - Lane 3: G=4, Y=16, R=17
-  - Lane 4: G=27, Y=26, R=25
+If your environment is already set up:
 
-## Quick Start
-
-### 1) Create and edit environment config
-
-From project root:
-
-```powershell
-Copy-Item .env.example .env
-```
-
-Edit [.env](.env) and set your values:
-
-- WIFI_SSID
-- WIFI_PASSWORD
-- SERVER_BASE_URL (must be reachable by ESP32 over Wi-Fi)
-- optional: FLASK_HOST, FLASK_PORT, FLASK_DEBUG, FED_MIN_CLIENTS
-
-### 2) Start the federated server
+1. Start the backend server.
 
 ```powershell
 cd server
-python -m venv .venv
 .venv\Scripts\activate
-pip install -r requirements.txt
 python app.py
 ```
 
-Default binding is 0.0.0.0:5000 unless overridden in [.env](.env).
-
-### 3) Generate ESP32 secrets header from .env
-
-Run from repository root:
-
-```powershell
-powershell -ExecutionPolicy Bypass -File tools\generate_esp32_secrets.ps1
-```
-
-This updates [esp32/FederatedTrafficController/node_secrets.h](esp32/FederatedTrafficController/node_secrets.h) so firmware and server use the same network/server settings.
-
-### 4) Build and upload each node
-
-Edit [esp32/FederatedTrafficController/node_config.h](esp32/FederatedTrafficController/node_config.h):
-
-- build/upload once with NODE_PROFILE_INDEX 0 (node esp-a)
-- build/upload again with NODE_PROFILE_INDEX 1 (node esp-b)
-
-### 5) Open dashboard
-
-Open:
-
-- http://localhost:5000
-- or http://<server-ip>:5000
+2. Regenerate [esp32/FederatedTrafficController/node_secrets.h](esp32/FederatedTrafficController/node_secrets.h) only when [.env](.env) changes.
+3. Rebuild/reupload ESP32 firmware only when firmware or node config changes.
+4. Open http://localhost:5000 and verify node status.
 
 ## Configuration Reference
 
