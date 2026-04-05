@@ -7,3 +7,6 @@ __pycache__/
 backup/
 esp32/FederatedTrafficController/node_secrets.h
 .vscode/
+# Experiment pipeline outputs
+scenarios/*.json
+results/
