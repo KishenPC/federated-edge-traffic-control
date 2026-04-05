@@ -1,54 +1,50 @@
 # Federated Edge-AI Traffic Signal Control
 
-This project implements a two-node federated edge-AI traffic controller using:
+This project implements a two-node federated edge-AI traffic controller with:
 
-- `2x ESP32` intersections
-- `4x sensors` per intersection
-- `4x signal heads` per intersection
-- `1x Flask` aggregation server on a laptop
+- 2 ESP32 intersections
+- 4 lane sensors per intersection
+- 4 signal lanes per intersection (R/Y/G each)
+- 1 Flask aggregation server on a laptop
 
-Each ESP32:
+Each ESP32 performs local sensing, demand estimation, lane selection, and local model updates. Only model weights and summary metrics are sent to the server. The Flask server performs weighted federated averaging (FedAvg) and shares a global model back to both nodes.
 
-- reads local lane sensors
-- computes lane demand locally
-- runs a tiny local traffic model
-- updates its own weights on-device
-- controls LEDs with hard safety limits
-- sends only model weights and summary metrics to the laptop
+## Repository Layout
 
-The laptop:
+- [README.md](README.md): setup and operation guide
+- [docs/workflow.md](docs/workflow.md): architecture and workflow narrative
+- [shared/protocol.md](shared/protocol.md): API payload contract and model format
+- [server/app.py](server/app.py): Flask aggregation backend and dashboard APIs
+- [server/requirements.txt](server/requirements.txt): Python dependencies
+- [server/templates/dashboard.html](server/templates/dashboard.html): dashboard markup
+- [server/static/style.css](server/static/style.css): dashboard styling
+- [server/static/dashboard.js](server/static/dashboard.js): dashboard polling/render logic
+- [esp32/FederatedTrafficController/FederatedTrafficController.ino](esp32/FederatedTrafficController/FederatedTrafficController.ino): ESP32 firmware
+- [esp32/FederatedTrafficController/node_config.h](esp32/FederatedTrafficController/node_config.h): compile-time node profile and defaults
+- [esp32/FederatedTrafficController/node_secrets.h](esp32/FederatedTrafficController/node_secrets.h): generated local secrets header
+- [tools/generate_esp32_secrets.ps1](tools/generate_esp32_secrets.ps1): .env to node_secrets.h generator
 
-- receives local model updates
-- performs federated averaging (`FedAvg`)
-- returns a shared global model to both intersections
+## Prerequisites
 
-## Project Layout
+- Python 3.10+ on the machine running the Flask server
+- Arduino IDE (or PlatformIO) with ESP32 board support installed
+- ArduinoJson library available for ESP32 build
+- Two ESP32 boards on the same Wi-Fi network as the server
+- 4 digital vehicle sensors per node and lane LEDs/signals wired to GPIO
 
-- [`docs/workflow.md`](/c:/Users/Kishen/Desktop/Stuff/MPMC%20Project/docs/workflow.md): report-ready workflow and architecture
-- [`shared/protocol.md`](/c:/Users/Kishen/Desktop/Stuff/MPMC%20Project/shared/protocol.md): JSON contract and model definition
-- [`server/app.py`](/c:/Users/Kishen/Desktop/Stuff/MPMC%20Project/server/app.py): Flask federated aggregation server
-- [`server/requirements.txt`](/c:/Users/Kishen/Desktop/Stuff/MPMC%20Project/server/requirements.txt): Python dependencies
-- [`esp32/FederatedTrafficController/FederatedTrafficController.ino`](/c:/Users/Kishen/Desktop/Stuff/MPMC%20Project/esp32/FederatedTrafficController/FederatedTrafficController.ino): ESP32 firmware
-- [`esp32/FederatedTrafficController/node_config.h`](/c:/Users/Kishen/Desktop/Stuff/MPMC%20Project/esp32/FederatedTrafficController/node_config.h): per-node Wi-Fi and upload configuration
+## First-Time Setup Procedure
 
-## Your Current Wiring Map
+Follow this once from a fresh machine/workspace.
 
-Both ESP32 boards use the same pin scheme:
+1. Open this project in a terminal at repository root.
+2. Create your local environment file.
 
-- Sensors:
-  - `GPIO34`
-  - `GPIO35`
-  - `GPIO32`
-  - `GPIO33`
-- Signal heads:
-  - Lane 1: `G=21`, `Y=22`, `R=23`
-  - Lane 2: `G=5`, `Y=18`, `R=19`
-  - Lane 3: `G=4`, `Y=16`, `R=17`
-  - Lane 4: `G=27`, `Y=26`, `R=25`
+```powershell
+Copy-Item .env.example .env
+```
 
-## How To Run
-
-### 1. Start the federated server
+3. Edit [.env](.env) and set WIFI_SSID, WIFI_PASSWORD, and SERVER_BASE_URL.
+4. Install Python dependencies and start the backend server.
 
 ```powershell
 cd server
@@ -58,55 +54,173 @@ pip install -r requirements.txt
 python app.py
 ```
 
-By default the server listens on `0.0.0.0:5000`.
-
-### 2. Configure local environment values
-
-Edit [`.env`](/c:/Users/Kishen/Desktop/Stuff/MPMC%20Project/.env) with:
-
-- your Wi-Fi SSID/password
-- your laptop IP in `SERVER_BASE_URL`
-- any Flask overrides such as `FLASK_PORT` or `FED_MIN_CLIENTS`
-
-Generate the ESP32 local secrets header from the same `.env` file:
+5. Confirm the server is live by opening http://localhost:5000/health in your browser.
+6. In a second terminal at repository root, generate ESP32 secrets from your .env values.
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File tools\generate_esp32_secrets.ps1
 ```
 
-If you use VS Code and IntelliSense cannot resolve Arduino / ESP32 headers, copy:
+7. Open [esp32/FederatedTrafficController/node_config.h](esp32/FederatedTrafficController/node_config.h) and set NODE_PROFILE_INDEX to 0.
+8. Build and upload firmware to the first ESP32 (node esp-a).
+9. Change NODE_PROFILE_INDEX to 1.
+10. Build and upload firmware to the second ESP32 (node esp-b).
+11. Open the dashboard at http://localhost:5000 and verify both nodes become online and rounds start increasing.
 
-```text
-.vscode.example/c_cpp_properties.json
+If the nodes do not appear online, go to the Troubleshooting section below.
+
+## Pin Mapping
+
+Both ESP32 boards use the same pins:
+
+- Sensors:
+  - GPIO34
+  - GPIO35
+  - GPIO32
+  - GPIO33
+- Signals:
+  - Lane 1: G=21, Y=22, R=23
+  - Lane 2: G=5, Y=18, R=19
+  - Lane 3: G=4, Y=16, R=17
+  - Lane 4: G=27, Y=26, R=25
+
+## Quick Start
+
+### 1) Create and edit environment config
+
+From project root:
+
+```powershell
+Copy-Item .env.example .env
 ```
 
-to:
+Edit [.env](.env) and set your values:
 
-```text
-.vscode/c_cpp_properties.json
+- WIFI_SSID
+- WIFI_PASSWORD
+- SERVER_BASE_URL (must be reachable by ESP32 over Wi-Fi)
+- optional: FLASK_HOST, FLASK_PORT, FLASK_DEBUG, FED_MIN_CLIENTS
+
+### 2) Start the federated server
+
+```powershell
+cd server
+python -m venv .venv
+.venv\Scripts\activate
+pip install -r requirements.txt
+python app.py
 ```
 
-Then replace the placeholder user name and ESP32 package version with your local paths.
+Default binding is 0.0.0.0:5000 unless overridden in [.env](.env).
 
-### 3. Configure and upload each ESP32
+### 3) Generate ESP32 secrets header from .env
 
-Edit [`esp32/FederatedTrafficController/node_config.h`](/c:/Users/Kishen/Desktop/Stuff/MPMC%20Project/esp32/FederatedTrafficController/node_config.h):
+Run from repository root:
 
-- compile once with `NODE_PROFILE_INDEX 0` for ESP32 A
-- compile again with `NODE_PROFILE_INDEX 1` for ESP32 B
+```powershell
+powershell -ExecutionPolicy Bypass -File tools\generate_esp32_secrets.ps1
+```
 
-### 4. Observe the federated loop
+This updates [esp32/FederatedTrafficController/node_secrets.h](esp32/FederatedTrafficController/node_secrets.h) so firmware and server use the same network/server settings.
 
-- ESP32 nodes boot and fetch the current global model
-- each node controls its own intersection locally
-- nodes update weights after each phase cycle
-- nodes post updates to the laptop
-- the server aggregates weights after updates from both nodes
-- both nodes pull the new shared model
+### 4) Build and upload each node
 
-## Design Notes
+Edit [esp32/FederatedTrafficController/node_config.h](esp32/FederatedTrafficController/node_config.h):
 
-- The local model is intentionally tiny so it can run fully on the ESP32.
-- Safety rules remain local and hardcoded on the edge node.
-- The system still functions if the server is temporarily unavailable.
-- This is a valid federated edge-AI prototype because learning happens on the ESP32s, not only on the laptop.
+- build/upload once with NODE_PROFILE_INDEX 0 (node esp-a)
+- build/upload again with NODE_PROFILE_INDEX 1 (node esp-b)
+
+### 5) Open dashboard
+
+Open:
+
+- http://localhost:5000
+- or http://<server-ip>:5000
+
+## Configuration Reference
+
+Values are read from [.env](.env) by [server/app.py](server/app.py), and secrets can be propagated to firmware via [tools/generate_esp32_secrets.ps1](tools/generate_esp32_secrets.ps1).
+
+| Key | Purpose | Default |
+| --- | --- | --- |
+| FLASK_HOST | Flask bind host | 0.0.0.0 |
+| FLASK_PORT | Flask port | 5000 |
+| FLASK_DEBUG | Flask debug mode (1/0) | 0 |
+| FED_MIN_CLIENTS | Required updates before aggregation | 2 |
+| WIFI_SSID | Node Wi-Fi SSID | YOUR_WIFI_SSID |
+| WIFI_PASSWORD | Node Wi-Fi password | YOUR_WIFI_PASSWORD |
+| SERVER_BASE_URL | Base URL used by ESP32 HTTP client | http://192.168.1.10:5000 |
+| SENSOR_ACTIVE_LOW | Sensor polarity (true/false) | true |
+| SERIAL_BAUD | ESP32 serial monitor baud rate | 115200 |
+
+## Runtime Behavior
+
+Local edge loop on each ESP32:
+
+1. Read lane sensors and smooth demand values.
+2. Compute lane priority from local weights + starvation boost.
+3. Select next lane and compute bounded green time.
+4. Enforce safety timings: min/max green, yellow, all-red.
+5. Update local model weights.
+6. Periodically push local model to server.
+
+Federated loop on Flask server:
+
+1. Accept local updates for current round.
+2. Wait for minimum client count.
+3. Aggregate with weighted FedAvg using sample_count.
+4. Increment round and publish new global weights.
+
+## API Endpoints
+
+| Method | Path | Purpose |
+| --- | --- | --- |
+| GET | /health | Liveness check |
+| GET | /get_weights | Fetch current global model and round |
+| GET | /status | Full runtime snapshot for dashboard |
+| POST | /update | Submit node update for current round |
+| POST | /reset | Reset server state to defaults |
+| GET | /api/errors | Fetch in-memory event log |
+| GET | /api/history | Fetch aggregation history |
+| GET | /api/test | Run backend self-checks and return pass/fail results |
+
+Update response status values:
+
+- accepted: update stored, waiting for more clients
+- aggregated: update triggered federated aggregation
+- stale: update round is behind current server round (HTTP 409)
+
+Detailed payloads are documented in [shared/protocol.md](shared/protocol.md).
+
+## Dashboard Features
+
+- Global model card (round, last update, pending clients, global weights)
+- Per-node status cards (online/stale/offline, demand bars, metrics)
+- Aggregation history table
+- Event log with level filters
+- System test panel (depends on /api/test endpoint)
+
+## Safety and Failover Notes
+
+- Safety timing is enforced on ESP32 and does not depend on the server.
+- If Wi-Fi/server is unavailable, nodes continue standalone local control.
+- Raw sensor streams are kept local; only model weights + summary metrics are transmitted.
+
+## Troubleshooting
+
+- Dashboard shows server Offline:
+  - confirm Flask is running on expected host/port
+  - verify firewall allows incoming connections on FLASK_PORT
+- Node never updates:
+  - verify SERVER_BASE_URL points to reachable server IP from ESP32 network
+  - verify Wi-Fi credentials in .env and regenerated node_secrets.h
+- Frequent stale responses from /update:
+  - node is sending an older round; force node to pull global weights
+- Wrong vehicle detection behavior:
+  - check SENSOR_ACTIVE_LOW setting and sensor wiring
+- ESP32 compile cannot find secrets:
+  - ensure node_secrets.h exists and is generated by tools/generate_esp32_secrets.ps1
+
+## Project Notes
+
+- [.env](.env) and [esp32/FederatedTrafficController/node_secrets.h](esp32/FederatedTrafficController/node_secrets.h) are git-ignored for safety.

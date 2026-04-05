@@ -153,7 +153,6 @@
 
   function renderLogs() {
     const container = $("#log-container");
-    const emptyEl = $("#log-empty");
     const filtered =
       currentLogFilter === "all"
         ? allLogs
@@ -261,7 +260,7 @@
     const allPassed = checks.every((c) => c.passed);
 
     let html = `<div class="test-summary ${allPassed ? "all-pass" : "has-fail"}">
-      ${allPassed ? "" : ""} ${data.passed}/${data.total} checks passed
+      ${data.passed}/${data.total} checks passed
       ${data.run_at ? " &mdash; " + shortTime(data.run_at) : ""}
     </div>`;
 
