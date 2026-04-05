@@ -465,6 +465,9 @@ def api_test():
     except Exception as exc:
         checks.append({"name": "Server Uptime", "passed": False, "detail": str(exc)})
 
+    total = len(checks)
+    passed = sum(1 for check in checks if check.get("passed"))
+
     return jsonify({
         "passed": passed,
         "total": total,
