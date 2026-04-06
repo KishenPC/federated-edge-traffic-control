@@ -1,4 +1,3 @@
-/* ── Dashboard client ─────────────────────────────────── */
 (function () {
   "use strict";
 
@@ -10,7 +9,6 @@
   let currentLogFilter = "all";
   let allLogs = [];
 
-  /* ── Helpers ────────────────────────────────────────── */
   const $ = (sel) => document.querySelector(sel);
   const $$ = (sel) => document.querySelectorAll(sel);
 
@@ -34,7 +32,6 @@
     return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit", second: "2-digit" });
   }
 
-  /* ── Bar Chart Renderer ─────────────────────────────── */
   function renderBars(containerId, values, maxVal) {
     const el = document.getElementById(containerId);
     if (!el) return;
@@ -56,7 +53,7 @@
       .join("");
   }
 
-  /* ── Clock ──────────────────────────────────────────── */
+
   function tickClock() {
     const el = $("#header-clock");
     if (el) el.textContent = new Date().toLocaleTimeString();
@@ -64,7 +61,7 @@
   setInterval(tickClock, 1000);
   tickClock();
 
-  /* ── Status Polling ─────────────────────────────────── */
+  
   async function pollStatus() {
     try {
       const res = await fetch("/status");
@@ -139,7 +136,7 @@
     });
   }
 
-  /* ── Error / Event Log ──────────────────────────────── */
+
   async function pollErrors() {
     try {
       const res = await fetch("/api/errors");
@@ -153,7 +150,6 @@
 
   function renderLogs() {
     const container = $("#log-container");
-    const emptyEl = $("#log-empty");
     const filtered =
       currentLogFilter === "all"
         ? allLogs
@@ -193,7 +189,6 @@
     });
   });
 
-  /* ── Aggregation History ────────────────────────────── */
   async function pollHistory() {
     try {
       const res = await fetch("/api/history");
@@ -230,7 +225,6 @@
       .join("");
   }
 
-  /* ── Test Runner ────────────────────────────────────── */
   const testBtn = $("#run-tests-btn");
   testBtn.addEventListener("click", async () => {
     testBtn.disabled = true;
@@ -261,7 +255,7 @@
     const allPassed = checks.every((c) => c.passed);
 
     let html = `<div class="test-summary ${allPassed ? "all-pass" : "has-fail"}">
-      ${allPassed ? "" : ""} ${data.passed}/${data.total} checks passed
+      ${data.passed}/${data.total} checks passed
       ${data.run_at ? " &mdash; " + shortTime(data.run_at) : ""}
     </div>`;
 
@@ -277,7 +271,6 @@
     el.innerHTML = html;
   }
 
-  /* ── Polling Loop ───────────────────────────────────── */
   async function poll() {
     await Promise.all([pollStatus(), pollErrors(), pollHistory()]);
   }

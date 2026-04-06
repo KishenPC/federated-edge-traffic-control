@@ -36,12 +36,6 @@ header {
   position: sticky; top: 0; z-index: 100;
 }
 .header-left { display: flex; align-items: center; gap: 14px; }
-.logo-icon {
-  font-size: 1.6rem; background: var(--accent);
-  width: 44px; height: 44px; border-radius: 12px;
-  display: grid; place-items: center;
-  box-shadow: 0 0 20px rgba(108,92,231,.45);
-}
 header h1 { font-size: 1.25rem; font-weight: 700; letter-spacing: -.3px; }
 .subtitle { font-size: .78rem; color: var(--text-dim); margin-top: 2px; }
 .header-right { display: flex; align-items: center; gap: 16px; }

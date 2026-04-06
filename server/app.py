@@ -95,14 +95,6 @@ class NodeUpdate:
 
 
 @dataclass
-class HistoryEntry:
-    round_id: int
-    weights: list[float]
-    contributors: list[str]
-    time: str
-
-
-@dataclass
 class FederatedState:
     min_clients: int
     global_weights: np.ndarray = field(default_factory=lambda: DEFAULT_MODEL.copy())
@@ -374,7 +366,6 @@ def api_test():
         s_a, s_b = 30, 20
         expected = np.average([w_a, w_b], axis=0, weights=[s_a, s_b])
         # Simulate via temp state
-        from copy import deepcopy
         tmp = FederatedState(min_clients=2)
         tmp.pending_updates["test-a"] = NodeUpdate("test-a", 0, w_a, s_a, {}, utc_now_iso())
         tmp.pending_updates["test-b"] = NodeUpdate("test-b", 0, w_b, s_b, {}, utc_now_iso())
@@ -464,6 +455,9 @@ def api_test():
         })
     except Exception as exc:
         checks.append({"name": "Server Uptime", "passed": False, "detail": str(exc)})
+
+    total = len(checks)
+    passed = sum(1 for check in checks if check["passed"])
 
     return jsonify({
         "passed": passed,
